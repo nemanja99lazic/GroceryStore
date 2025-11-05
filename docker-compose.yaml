@@ -1,0 +1,30 @@
+services:
+  grocery-store-database:
+    image: 'mongodb/mongodb-community-server:7.0-ubi8'
+    networks:
+      - grocery_store_network
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=grocery_store_username
+      - MONGO_INITDB_ROOT_PASSWORD=grocery_store_password
+      - MONGO_INITDB_DATABASE=grocery_store
+
+  grocery-store-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - grocery-store-database
+    networks:
+      - grocery_store_network
+    ports:
+      - '3001:3001'
+    environment:
+      - HTTP_PORT=3001
+      - DB_CONNECTION_STRING=mongodb://grocery_store_username:grocery_store_password@grocery-store-database:27017/grocery_store?authSource=admin
+
+networks:
+  grocery_store_network:
+    name: grocery_store_network
+
